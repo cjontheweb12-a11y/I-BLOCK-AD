@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>I Block Ad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-deep:    #080c10;
+      --bg-card:    #0e141c;
+      --bg-hover:   #141c26;
+      --border:     rgba(0,200,120,0.15);
+      --accent:     #00c878;
+      --accent-dim: rgba(0,200,120,0.15);
+      --accent-glow:rgba(0,200,120,0.4);
+      --danger:     #ff4560;
+      --danger-dim: rgba(255,69,96,0.15);
+      --text-hi:    #e8f4ee;
+      --text-mid:   #7a9a88;
+      --text-lo:    #3a5444;
+      --radius:     12px;
+    }
+
+    body {
+      width: 340px;
+      background: var(--bg-deep);
+      color: var(--text-hi);
+      font-family: 'Space Grotesk', sans-serif;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Ambient glow background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -60px; left: 50%; transform: translateX(-50%);
+      width: 300px; height: 200px;
+      background: radial-gradient(ellipse, rgba(0,200,120,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: 20px 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, #00c878 0%, #00a060 100%);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 14px var(--accent-glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-icon::after {
+      content: '';
+      position: absolute;
+      top: -8px; right: -8px;
+      width: 20px; height: 20px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+    }
+
+    .logo-icon svg { position: relative; z-index: 1; }
+
+    .logo-text {
+      display: flex; flex-direction: column; line-height: 1;
+    }
+
+    .logo-name {
+      font-size: 15px; font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-hi);
+    }
+
+    .logo-tagline {
+      font-size: 10px; font-weight: 400;
+      color: var(--text-mid);
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    /* Main toggle */
+    .toggle-wrap {
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .toggle-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-mid);
+      letter-spacing: 0.5px;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px; height: 24px;
+      cursor: pointer;
+    }
+
+    .toggle input { display: none; }
+
+    .toggle-track {
+      position: absolute; inset: 0;
+      background: #1a2530;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      background: var(--text-lo);
+      border-radius: 50%;
+      transition: transform 0.25s cubic-bezier(.4,0,.2,1), background 0.2s;
+    }
+
+    .toggle input:checked ~ .toggle-track {
+      background: rgba(0,200,120,0.2);
+      border-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    .toggle input:checked ~ .toggle-thumb {
+      transform: translateX(20px);
+      background: var(--accent);
+    }
+
+    /* ── Big counter ── */
+    .counter-section {
+      padding: 20px 20px 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .counter-ring {
+      width: 110px; height: 110px;
+      margin: 0 auto 12px;
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .counter-ring svg {
+      position: absolute; inset: 0;
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg { stroke: rgba(0,200,120,0.08); }
+    .ring-progress {
+      stroke: var(--accent);
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 6px var(--accent-glow));
+      transition: stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1);
+    }
+
+    .counter-inner {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .counter-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      letter-spacing: -1px;
+    }
+
+    .counter-label {
+      font-size: 9px;
+      font-weight: 500;
+      color: var(--text-mid);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .counter-sub {
+      font-size: 11px;
+      color: var(--text-mid);
+    }
+
+    .counter-sub span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ── Status bar ── */
+    .status-bar {
+      margin: 0 20px 16px;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+      flex-shrink: 0;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .status-dot.off {
+      background: var(--text-lo);
+      box-shadow: none;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status-text {
+      font-size: 12px;
+      color: var(--text-mid);
+      flex: 1;
+    }
+
+    .status-text strong {
+      color: var(--text-hi);
+      font-weight: 600;
+    }
+
+    /* ── Toggles grid ── */
+    .settings-grid {
+      padding: 0 20px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+
+    .setting-row {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.15s, border-color 0.15s;
+      cursor: default;
+    }
+
+    .setting-row:hover { background: var(--bg-hover); border-color: rgba(0,200,120,0.25); }
+
+    .setting-info { display: flex; align-items: center; gap: 9px; }
+
+    .setting-icon {
+      width: 28px; height: 28px;
+      background: var(--accent-dim);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .setting-text { display: flex; flex-direction: column; }
+    .setting-name { font-size: 12px; font-weight: 600; color: var(--text-hi); }
+    .setting-desc { font-size: 10px; color: var(--text-mid); margin-top: 1px; }
+
+    .mini-toggle {
+      position: relative; width: 36px; height: 20px; cursor: pointer;
+    }
+
+    .mini-toggle input { display: none; }
+
+    .mt-track {
+      position: absolute; inset: 0;
+      background: #1a2530;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: all 0.2s;
+    }
+
+    .mt-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 12px; height: 12px;
+      background: var(--text-lo);
+      border-radius: 50%;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .mini-toggle input:checked ~ .mt-track {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+    }
+
+    .mini-toggle input:checked ~ .mt-thumb {
+      transform: translateX(16px);
+      background: var(--accent);
+    }
+
+    /* ── Current site ── */
+    .site-section {
+      padding: 0 20px 16px;
+    }
+
+    .site-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+    }
+
+    .site-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .site-label {
+      font-size: 10px; font-weight: 600;
+      color: var(--text-mid);
+      letter-spacing: 0.8px; text-transform: uppercase;
+    }
+
+    .site-domain {
+      font-size: 12px; font-weight: 600;
+      color: var(--text-hi);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .site-actions { display: flex; gap: 8px; }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.3px;
+    }
+
+    .btn-block {
+      background: var(--danger-dim);
+      color: var(--danger);
+      border: 1px solid rgba(255,69,96,0.25);
+      flex: 1;
+    }
+
+    .btn-block:hover {
+      background: rgba(255,69,96,0.25);
+    }
+
+    .btn-allow {
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid rgba(0,200,120,0.25);
+      flex: 1;
+    }
+
+    .btn-allow:hover {
+      background: rgba(0,200,120,0.25);
+    }
+
+    .btn-active {
+      opacity: 1;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .footer-version {
+      font-size: 10px;
+      color: var(--text-lo);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .btn-reset {
+      padding: 5px 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 10px;
+      color: var(--text-mid);
+      cursor: pointer;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+
+    .btn-reset:hover {
+      border-color: var(--text-mid);
+      color: var(--text-hi);
+    }
+
+    /* Disabled state overlay */
+    body.disabled .counter-number { color: var(--text-lo); }
+    body.disabled .ring-progress { stroke: var(--text-lo); filter: none; }
+    body.disabled .status-text strong { color: var(--danger); }
+    body.disabled .logo-icon { background: #2a3040; box-shadow: none; }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header, .counter-section, .status-bar, .settings-grid, .site-section, .footer {
+      animation: fadeIn 0.3s ease both;
+    }
+    .counter-section { animation-delay: 0.05s; }
+    .status-bar { animation-delay: 0.1s; }
+    .settings-grid { animation-delay: 0.15s; }
+    .site-section { animation-delay: 0.2s; }
+    .footer { animation-delay: 0.25s; }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="white" opacity="0.9"/>
+          <path d="M9 12l2 2 4-4" stroke="#00c878" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">I Block Ad</span>
+        <span class="logo-tagline">Ad &amp; Tracker Blocker</span>
+      </div>
+    </div>
+    <div class="toggle-wrap">
+      <span class="toggle-label" id="toggleLabel">ON</span>
+      <label class="toggle" title="Enable/Disable I Block Ad">
+        <input type="checkbox" id="mainToggle" checked>
+        <span class="toggle-track"></span>
+        <span class="toggle-thumb"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Big Counter -->
+  <div class="counter-section">
+    <div class="counter-ring">
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle class="ring-bg" cx="55" cy="55" r="48" fill="none" stroke-width="6"/>
+        <circle class="ring-progress" id="ringProgress" cx="55" cy="55" r="48" fill="none"
+          stroke-width="6"
+          stroke-dasharray="301.6"
+          stroke-dashoffset="151"/>
+      </svg>
+      <div class="counter-inner">
+        <div class="counter-number" id="blockedCount">0</div>
+        <div class="counter-label">Blocked</div>
+      </div>
+    </div>
+    <div class="counter-sub">
+      <span id="sessionLabel">All-time requests blocked</span>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <div class="status-dot" id="statusDot"></div>
+    <div class="status-text" id="statusText">
+      <strong>Protection active</strong> — ads &amp; trackers blocked
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="settings-grid">
+    <div class="setting-row">
+      <div class="setting-info">
+        <div class="setting-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="5" width="20" height="14" rx="3" stroke="#00c878" stroke-width="2"/>
+            <path d="M2 9h20" stroke="#00c878" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="setting-text">
+          <span class="setting-name">Block Ads</span>
+          <span class="setting-desc">Remove banner, video &amp; display ads</span>
+        </div>
+      </div>
+      <label class="mini-toggle">
+        <input type="checkbox" id="blockAds" checked>
+        <span class="mt-track"></span>
+        <span class="mt-thumb"></span>
+      </label>
+    </div>
+
+    <div class="setting-row">
+      <div class="setting-info">
+        <div class="setting-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="#00c878" stroke-width="2"/>
+            <path d="M12 7v5l3 3" stroke="#00c878" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="setting-text">
+          <span class="setting-name">Block Trackers</span>
+          <span class="setting-desc">Stop analytics &amp; fingerprinting scripts</span>
+        </div>
+      </div>
+      <label class="mini-toggle">
+        <input type="checkbox" id="blockTrackers" checked>
+        <span class="mt-track"></span>
+        <span class="mt-thumb"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Current Site -->
+  <div class="site-section">
+    <div class="site-card">
+      <div class="site-header">
+        <span class="site-label">Current Site</span>
+        <span class="site-domain" id="currentDomain">—</span>
+      </div>
+      <div class="site-actions">
+        <button class="btn btn-allow" id="btnWhitelist">✓ Allow Site</button>
+        <button class="btn btn-block" id="btnBlock">✗ Block Site</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-version">v1.0.0 · 50 rule sets</span>
+    <button class="btn-reset" id="btnReset">Reset Stats</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
