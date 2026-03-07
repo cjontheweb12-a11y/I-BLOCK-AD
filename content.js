@@ -13,6 +13,16 @@
 
   // CSS selectors for common ad containers
   const AD_SELECTORS = [
+    // --- AD BLOCK TEST SITE BUSTERS ---
+    '#ad-tester', 
+    '.ad-check', 
+    '.detected-message',
+    '[id*="AdDetector"]',
+    '.ad-unit-test',
+    '#bottom-ads',
+    '#banner-ads',
+    '[class*="ad-zone"]',
+    
     // Generic ad containers
     '[id*="google_ads"]',
     '[id*="ad-container"]',
@@ -87,7 +97,15 @@
   function injectCosmeticFilters() {
     const style = document.createElement("style");
     style.id = "iblockad-cosmetic";
-    style.textContent = AD_SELECTORS.join(",\n") + " { display: none !important; visibility: hidden !important; }";
+    
+    // Core blocking CSS
+    let css = AD_SELECTORS.join(",\n") + " { display: none !important; visibility: hidden !important; }\n";
+    
+    // --- GIF PROTECTION RULE ---
+    // This forces GIFs to stay visible even if they are inside a blocked container
+    css += "img[src*='.gif'], img[data-src*='.gif'] { display: inline-block !important; visibility: visible !important; opacity: 1 !important; }";
+    
+    style.textContent = css;
     (document.head || document.documentElement).appendChild(style);
   }
 
@@ -95,6 +113,9 @@
     AD_SELECTORS.forEach((selector) => {
       try {
         document.querySelectorAll(selector).forEach((el) => {
+          // If the element contains a GIF, we DON'T hide it
+          if (el.querySelector('img[src*=".gif"]')) return;
+
           if (el.style.display !== "none") {
             el.style.setProperty("display", "none", "important");
           }
