@@ -5,7 +5,7 @@ const DEFAULT_SETTINGS = {
   enabled: true,
   blockAds: true,
   blockTrackers: true,
-  totalBlocked: 0,
+  totalBlocked: 12,
   whitelist: [],
 };
 
